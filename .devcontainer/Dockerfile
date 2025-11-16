@@ -9,22 +9,24 @@ RUN apt-get update && apt-get install -y \
     git \
     ca-certificates \
     build-essential \
-    # optional but often handy:
     pkg-config \
     libssl-dev \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv (Python package & project manager)
-# This installs uv into /root/.local/bin by default; then we symlink into /usr/local/bin
+# Install script puts it in /root/.local/bin; then we copy it to /usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    ln -s /root/.local/bin/uv /usr/local/bin/uv && \
-    ln -s /root/.local/bin/uvx /usr/local/bin/uvx
+    install -m 0755 /root/.local/bin/uv /usr/local/bin/uv && \
+    install -m 0755 /root/.local/bin/uvx /usr/local/bin/uvx
 
 # Create non-root user "vscode" with passwordless sudo (standard devcontainer pattern)
 RUN useradd -m vscode && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER vscode
-WORKDIR /workspaces/app
 
-# Optional: set a cache dir for uv (keeps things tidy & easy to mount later if you want)
+# This is where the workspace will be mounted by the devcontainer
+WORKDIR /workspaces/${localWorkspaceFolderBasename}
+
+# Optional: set a cache dir for uv (keeps things tidy)
 ENV UV_CACHE_DIR=/home/vscode/.cache/uv

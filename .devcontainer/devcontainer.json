@@ -1,12 +1,16 @@
 {
-  "name": "Dev Container",
+  "name": "Joy & Niko Website (uv + FastAPI)",
+
   "build": {
+    // Dockerfile lives in .devcontainer/, but we want the project root
+    // as build context so Docker sees pyproject.toml, app/, etc.
     "dockerfile": "Dockerfile",
-    "context": ".devcontainer"
+    "context": ".."
   },
 
-  // VS Code will mount your repo here
-  "workspaceFolder": "/workspaces/app",
+  // Where VS Code opens the workspace *inside* the container.
+  // ${localWorkspaceFolderBasename} -> "joy-and-niko-website"
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
   "remoteUser": "vscode",
 
@@ -19,26 +23,25 @@
       ],
       "settings": {
         // Let the Python extension find the uv-managed venv in .venv
-        "python.defaultInterpreterPath": "/workspaces/app/.venv/bin/python",
-        "python.venvPath": "/workspaces/app/.venv",
+        // ${containerWorkspaceFolder} -> same as workspaceFolder above
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+        "python.venvPath": "${containerWorkspaceFolder}/.venv",
         "python.analysis.typeCheckingMode": "basic"
       }
     }
   },
 
-  // Environment vars inside the container
   "containerEnv": {
     "UV_CACHE_DIR": "/home/vscode/.cache/uv"
   },
 
   // After the container is built and your repo is mounted:
-  // - Ensure a Python version is available
-  // - Sync dependencies from pyproject.toml / uv.lock if present
+  // - Install Python 3.12 via uv
+  // - Sync dependencies if pyproject.toml exists
   "postCreateCommand": "uv python install 3.12 && if [ -f pyproject.toml ]; then uv sync; fi",
 
   "forwardPorts": [8000, 8080],
 
-  // Helpful if you run web apps that bind to 0.0.0.0
   "portsAttributes": {
     "8000": {
       "label": "App",
