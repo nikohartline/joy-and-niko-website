@@ -2,15 +2,15 @@
   "name": "Joy & Niko Website (uv + FastAPI)",
 
   "build": {
-    // Dockerfile lives in .devcontainer/, but we want the project root
-    // as build context so Docker sees pyproject.toml, app/, etc.
     "dockerfile": "Dockerfile",
     "context": ".."
   },
 
-  // Where VS Code opens the workspace *inside* the container.
-  // ${localWorkspaceFolderBasename} -> "joy-and-niko-website"
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  // Inside the container, our repo will live here:
+  "workspaceFolder": "/workspaces/app",
+
+  // Explicitly mount the local repo into /workspaces/app so the folder name on disk doesn't matter
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/app,type=bind,consistency=cached",
 
   "remoteUser": "vscode",
 
@@ -22,8 +22,6 @@
         "ms-azuretools.vscode-docker"
       ],
       "settings": {
-        // Let the Python extension find the uv-managed venv in .venv
-        // ${containerWorkspaceFolder} -> same as workspaceFolder above
         "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
         "python.venvPath": "${containerWorkspaceFolder}/.venv",
         "python.analysis.typeCheckingMode": "basic"
@@ -35,9 +33,6 @@
     "UV_CACHE_DIR": "/home/vscode/.cache/uv"
   },
 
-  // After the container is built and your repo is mounted:
-  // - Install Python 3.12 via uv
-  // - Sync dependencies if pyproject.toml exists
   "postCreateCommand": "uv python install 3.12 && if [ -f pyproject.toml ]; then uv sync; fi",
 
   "forwardPorts": [8000, 8080],
