@@ -1,0 +1,48 @@
+{
+  "name": "Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".devcontainer"
+  },
+
+  // VS Code will mount your repo here
+  "workspaceFolder": "/workspaces/app",
+
+  "remoteUser": "vscode",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        // Let the Python extension find the uv-managed venv in .venv
+        "python.defaultInterpreterPath": "/workspaces/app/.venv/bin/python",
+        "python.venvPath": "/workspaces/app/.venv",
+        "python.analysis.typeCheckingMode": "basic"
+      }
+    }
+  },
+
+  // Environment vars inside the container
+  "containerEnv": {
+    "UV_CACHE_DIR": "/home/vscode/.cache/uv"
+  },
+
+  // After the container is built and your repo is mounted:
+  // - Ensure a Python version is available
+  // - Sync dependencies from pyproject.toml / uv.lock if present
+  "postCreateCommand": "uv python install 3.12 && if [ -f pyproject.toml ]; then uv sync; fi",
+
+  "forwardPorts": [8000, 8080],
+
+  // Helpful if you run web apps that bind to 0.0.0.0
+  "portsAttributes": {
+    "8000": {
+      "label": "App",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
