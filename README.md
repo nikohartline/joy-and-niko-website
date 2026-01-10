@@ -1,0 +1,1 @@
+This repository is built to support wedding websites for myself and some friends!

@@ -1,5 +1,5 @@
 {
-  "name": "Joy & Niko Website (uv + FastAPI)",
+  "name": "Wedding Websites",
 
   "build": {
     "dockerfile": "Dockerfile",
